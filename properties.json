@@ -1,0 +1,45 @@
+{
+"project":
+    {
+      "field_type": "text",
+      "required": true,
+      "max_len": 64,
+      "description": "The project name or code name of the shot"
+    },
+"shot": {
+      "field_type": "text",
+      "max_len": 64,
+      "required": true,
+      "description": "The name of the shot"
+    },
+"version": {
+      "field_type": "int",
+      "max_value": "65535",
+      "min_value": "0",
+      "required": true,
+      "description": "The current version of the file"
+    },
+ "status": {
+      "field_type": "text",
+      "max_len": 32,
+      "required": true,
+      "description": "The current version of the file"
+    },
+ "finish_date": {
+      "field_type": "date",
+      "required": true,
+      "description": "The date the work on the shot is scheduled to end. (Date in YYYY-MM-DD format)"
+    },
+"internal_bid": {
+      "field_type": "float",
+      "max_value": "65535",
+      "min_value": "0",
+      "required": true,
+      "description": "The amount of days we estimate the work on this shot will take"
+    },
+"created_date": {
+      "field_type": "datetime",
+      "required": true,
+      "description": "The time and date when this record is being added to the system"
+    }
+}

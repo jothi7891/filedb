@@ -1,0 +1,56 @@
+{
+    "king kong-42-128": {
+        "created_date": "2006-10-15 09:14",
+        "finish_date": "2006-07-22",
+        "internal_bid": 30.0,
+        "project": "king kong",
+        "shot": "42",
+        "status": "not required",
+        "version": 128
+    },
+    "lotr-03-16": {
+        "created_date": "2001-04-01 06:47",
+        "finish_date": "2001-05-15",
+        "internal_bid": 45.0,
+        "project": "lotr",
+        "shot": "03",
+        "status": "finished",
+        "version": 16
+    },
+    "the hobbit-18-64": {
+        "created_date": "2010-04-01 13:35",
+        "finish_date": "2010-05-20",
+        "internal_bid": 45.0,
+        "project": "the hobbit",
+        "shot": "18",
+        "status": "scheduled",
+        "version": 64
+    },
+    "the hobbit-40-32": {
+        "created_date": "2010-03-22 01:10",
+        "finish_date": "2010-05-15",
+        "internal_bid": 22.8,
+        "project": "the hobbit",
+        "shot": "40",
+        "status": "finished",
+        "version": 32
+    },
+    "the hobbit-45-64": {
+        "created_date": "2010-04-01 13:35",
+        "finish_date": "2010-05-20",
+        "internal_bid": 45.0,
+        "project": "the hobbit",
+        "shot": "45",
+        "status": "scheduled",
+        "version": 64
+    },
+    "the hobbit-null-32": {
+        "created_date": "2010-03-22 01:10",
+        "finish_date": "2010-05-15",
+        "internal_bid": 22.8,
+        "project": "the hobbit",
+        "shot": "null",
+        "status": "finished",
+        "version": 32
+    }
+}
