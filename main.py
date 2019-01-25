@@ -1,6 +1,5 @@
-from db import FileDB
+from filedb.loader import Loader
 
 if __name__ == "__main__":
-    file_db = FileDB()
-    file_db.load_db()
-    file_db.commit()
+    loader = Loader()
+    loader.load()

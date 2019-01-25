@@ -1,60 +1,54 @@
-import logging
 import json
-from operator import and_
 from collections import OrderedDict
+import logging
+from operator import and_
 from datetime import datetime
-
+from filedb.db import FileDB
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 
-class FileDB:
-    def __init__(self):
-        with open("properties.json") as properties:
-            self.field_properties = json.load(properties, object_pairs_hook=OrderedDict)
-            # could be easily made as a class on its own - but just keeping it as a config dict for now
+class Loader:
+    def __init__(self, db_file="filedb/db.json", input_file="data/input.txt",
+                                        unprocessed_file= "data/unprocessed.txt"):
+
+        self._init_field_properties()
+        # could be easily made as a class on its own - but just keeping it as a config dict for now
         self.db_keys = [key for key in self.field_properties]
-        self.db_file = "db.json"
-        # Initialize the db json if not present
-        self._init_db_json()
-        self.unprocessed_file = "unprocessed.txt"
-        self.new_records = {}
+
+        self.header_validated = False
+
+        self.db = FileDB(db_file=db_file)
+        self.input_file = input_file
+        self.unprocessed_file = unprocessed_file
 
     def load(self):
-        with open("input.txt") as input_file:
-            self._parse_and_update(input_file)
-
-    def _init_db_json(self):
-        try:
-            open(self.db_file, 'r')
-        except FileNotFoundError:
-            logger.info('Db file does not exist, hence creating one')
-            with open(self.db_file, 'w') as db_fp:
-                record_list = {}
-                json.dump(record_list, db_fp)
-        # doesn't exist
-        else:
-            logger.info("Db file already exists")
-
-    def _parse_and_update(self, input_file):
-        header_validated = False
-
-        for line in input_file:
-            # strip off the newline at the end
-            line = line.rstrip('\n')
-            if header_validated is False:
-                header_validated = self._validate_header(line)
-                logger.info("validating the header line")
-            else:
-                try:
-                    logger.info("validated the fields line")
-                    parsed_line = self._validate_fields(line)
+        with open(self.input_file) as input_file:
+            self.new_records = {}
+            for line in input_file:
+                parsed_line = self._parse(line)
+                if parsed_line is not None:
                     self._add_record_to_db(parsed_line)
-                except ValueError as e:
-                    logger.error("Error processing the record"+ repr(e) + line)
-                    # Adding it to the different file so it could be processed later
-                    self._add_to_unprocessed_record(line)
+            self.db.insert_many(self.new_records)
+
+    def _parse(self, line):
+        parsed_line = None
+
+        # strip off the newline at the end
+        line = line.rstrip()
+        if self.header_validated is False:
+            self.header_validated = self._validate_header(line)
+            logger.info("validating the header line")
+        else:
+            try:
+                logger.info("validated and transform the fields line")
+                parsed_line = self._create_record(line)
+
+            except ValueError as e:
+                logger.error("Error processing the record" + repr(e) + line)
+                # Adding it to the different file so it could be processed later
+                self._add_to_unprocessed_record(line)
+        return parsed_line
 
     def _validate_header(self, line):
         logger.info("validating the header info")
@@ -64,9 +58,9 @@ class FileDB:
         else:
             return False
 
-    def _validate_fields(self, line):
+    def _create_record(self, line):
         try:
-        # Find the right field property from the field properties file and validate it
+            # Find the right field property from the field properties file and validate it
             fields = line.split('|')
             trans_field_list = []
             valid = True
@@ -78,7 +72,7 @@ class FileDB:
                 valid = valid and field_valid
                 trans_field_list.append(trans_field)
 
-            # use logical and on the values  and if it returns True , then something is wrong on the field type
+                # use logical and on the values  and if it returns True , then something is wrong on the field type
                 if valid is False:
                     raise ValueError
         except ValueError as e:
@@ -90,14 +84,14 @@ class FileDB:
 
     def _add_record_to_db(self, parsed_line):
 
-        db_record = {key: value for key, value in zip(self.db_keys,parsed_line)}
+        db_record = {key: value for key, value in zip(self.db_keys, parsed_line)}
 
         record_id = self._create_id(parsed_line)
 
         self._update(record_id, db_record)
 
     def _add_to_unprocessed_record(self, line):
-        with open(self.unprocessed_file , 'a+') as fp:
+        with open(self.unprocessed_file, 'a+') as fp:
             fp.write(line + '\n')
         logger.info("Line {0} was added to the unprocessed file".format(line))
 
@@ -145,6 +139,10 @@ class FileDB:
         finally:
             return return_value
 
+    def _init_field_properties(self):
+        with open("filedb/properties.json") as properties:
+            self.field_properties = json.load(properties, object_pairs_hook=OrderedDict)
+
     # reduce is not present in 3.5 hence defining a custom defined one
     @staticmethod
     def _reduce(function, iterable, initializer=None):
@@ -162,26 +160,7 @@ class FileDB:
         return '-'.join(map(str, parsed_line[:3]))
 
     def _update(self, record_id, db_record):
-
-        # Used Json for simplicity and given no constraints on the datastore, for sure this will be not
-        # efficient for processing greater number of records.
         self.new_records[record_id] = db_record
-        logger.info("Successfully inserted/updated record{0} with {1}".format(repr(db_record), id))
 
-    def commit(self):
-        # Just not lazily loading just incase if we need to rollback we still have 2 dicts , one new and one
-        # existing .. an easy way for now
-        try:
-            with open(self.db_file, 'r') as db_fp:
-                record_list = json.load(db_fp)
 
-                record_list.update(self.new_records)
-
-            with open(self.db_file, 'w') as db_fp:
-                json.dump(record_list, db_fp, sort_keys=True, indent=4)
-
-        except IOError as e:
-            logger.error("Error commiting the records {0} to the database ".format(repr(e)))
-        except ValueError as e:
-            logger.error("Error commiting the record {0} to the database".format(repr(e)))
 
