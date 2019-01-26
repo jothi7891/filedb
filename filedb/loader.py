@@ -28,8 +28,21 @@ class Loader:
             for line in input_file:
                 parsed_line = self._parse(line)
                 if parsed_line is not None:
-                    self._add_record_to_db(parsed_line)
+                    self.add_record_to_db(parsed_line)
             self.db.insert_many(self.new_records)
+
+    def add_record_to_db(self, parsed_line):
+
+        db_record = {key: value for key, value in zip(self.db_keys, parsed_line)}
+
+        record_id = self._create_id(parsed_line)
+
+        self._update(record_id, db_record)
+
+    def _add_to_unprocessed_record(self, line):
+        with open(self.unprocessed_file, 'a+') as fp:
+            fp.write(line + '\n')
+        logger.info("Line {0} was added to the unprocessed file".format(line))
 
     def _parse(self, line):
         parsed_line = None
@@ -81,19 +94,6 @@ class Loader:
         else:
             logger.info("The line {0} is validated successfully against the property".format(line))
             return trans_field_list
-
-    def _add_record_to_db(self, parsed_line):
-
-        db_record = {key: value for key, value in zip(self.db_keys, parsed_line)}
-
-        record_id = self._create_id(parsed_line)
-
-        self._update(record_id, db_record)
-
-    def _add_to_unprocessed_record(self, line):
-        with open(self.unprocessed_file, 'a+') as fp:
-            fp.write(line + '\n')
-        logger.info("Line {0} was added to the unprocessed file".format(line))
 
     def _validate_and_transform(self, field, field_property):
         valid = True

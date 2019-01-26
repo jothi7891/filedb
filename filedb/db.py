@@ -20,8 +20,13 @@ class FileDB:
         rec_id = self.insert(records)
         return rec_id
 
-    def query(self):
-        return None
+    def query(self, filter_args=None):
+        records = self._read()
+        if filter_args:
+            filtered_records = {rid: record for rid, record in records.items() if result.items() <= record.items()}
+        else:
+            filtered_records = records
+        return list(filtered_records.values())
 
     def _read(self):
         return self._data_store.read()
