@@ -30,6 +30,8 @@ without the tables or collection layer , just was not able to get time to put it
 
 * The `order_by` does not support ordering by aggregates yet.
 
+* The only external library used is `pytest` for conducting tests.
+
 
 
 
