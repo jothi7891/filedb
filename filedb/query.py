@@ -18,7 +18,7 @@ def count(t):
 
 class Query:
     def __init__(self, select_args={}, group_by_arg=None, filter_args=None, order_by_args=[], db_file="filedb/db.json"):
-        self.select_args = select_args
+
         self.group_by_arg = group_by_arg
 
         self.order_by_args = order_by_args
@@ -31,6 +31,8 @@ class Query:
 
         self.filter_args = self._transform_filter(filter_args)._store if filter_args else None
 
+        self.select_args = select_args if select_args else OrderedDict(map(lambda x: (x, None), self.db_keys))
+
     def query(self):
         try:
             result = self.db.query(self.filter_args)
@@ -41,7 +43,8 @@ class Query:
                 result = self._order_result(result)
             if self.select_args:
                 result = self._select_results(result)
-            self._beautify_result(result)
+            result = self._beautify_result(result)
+            return result
 
         except KeyError as e:
             logger.info("Unexpected key in the arguments" + repr(e))
@@ -94,8 +97,6 @@ class Query:
         return new_result
 
     def _select_results(self, result):
-        # return [OrderedDict((key, self._apply_func(key, value)) for key, value in record.items()
-        #                     if key in self.select_args.keys()) for record in result]
 
         return [OrderedDict((key, self._apply_func(key, record[key])) for key in self.select_args.keys())
                 for record in result]
@@ -121,9 +122,13 @@ class Query:
 
     def _beautify_result(self, result):
         # construct the format
-        print(''.join(map(self._apply_formatting, list(self.select_args.keys()))).upper())
+        output = ''
+        output += ''.join(map(self._apply_formatting, list(self.select_args.keys()))).upper()
+        output += '\n'
         for item in result:
-            print(''.join(map(self._apply_formatting, list(item.values()))))
+            output += ''.join(map(self._apply_formatting, list(item.values())))
+            output += '\n'
+        return output
 
     @staticmethod
     def _apply_formatting(item):

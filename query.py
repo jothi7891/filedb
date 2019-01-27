@@ -41,5 +41,5 @@ if __name__ == '__main__':
                   group_by_arg=args.group_by.lower())
 
     result = query.query()
-
+    print(result)
 

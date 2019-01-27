@@ -22,7 +22,7 @@ if __name__ == '__main__':
         print(repr(e))
     args = parse_arguments()
 
-    loader = Loader(db_file=args.db_file, init=args.init)
+    loader = Loader(db_file=args.db_file, init=args.init, input_file='data/input1.txt')
     loader.load()
 
 

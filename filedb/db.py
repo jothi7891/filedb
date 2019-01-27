@@ -1,5 +1,4 @@
 import logging
-from collections import OrderedDict
 from filedb.datastore import JsonStore
 
 logger = logging.getLogger(__name__)
@@ -7,8 +6,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 class FileDB:
-    def __init__(self, db_file):
-        self._data_store = JsonStore(file_name=db_file, indent=4)
+    def __init__(self, db_file, init=False):
+        self._data_store = JsonStore(file_name=db_file, indent=4, init=init)
 
     def insert(self, record: dict):
         data = self._read()
@@ -35,4 +34,11 @@ class FileDB:
 
     def _write(self, values):
         self._data_store.write(values)
+
+    def close(self):
+        self._data_store.close()
+
+    def flush(self):
+        self._data_store.flush()
+
 

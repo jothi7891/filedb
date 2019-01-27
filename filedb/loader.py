@@ -18,7 +18,7 @@ class Loader:
 
         self.header_validated = False
 
-        self.db = FileDB(db_file=db_file)
+        self.db = FileDB(db_file=db_file, init=init)
         self.input_file = input_file
         self.unprocessed_file = unprocessed_file
 
@@ -30,6 +30,7 @@ class Loader:
                 if parsed_line is not None:
                     self.add_record_to_db(parsed_line)
             self.db.insert_many(self.new_records)
+            self.db.flush()
 
     def add_record_to_db(self, parsed_line):
 

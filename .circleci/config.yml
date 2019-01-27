@@ -1,0 +1,67 @@
+ version: 2
+  jobs:
+    checkout:
+      working_directory: ~/repo
+      docker:
+        - image: circleci/python:3.5
+      steps:
+        - restore_cache:
+            keys:
+              - v1-source-{{ .Branch }}-{{ .Revision }}
+        - checkout:
+            path: ~/repo
+        - save_cache:
+            key: v1-source-{{ .Branch }}-{{ .Revision }}
+            paths:
+              - ".git"
+
+    build_and_test:
+      working_directory: ~/repo
+      docker:
+        - image: circleci/python:3.5
+          environment:
+              PIPENV_VENV_IN_PROJECT: true
+
+      steps:
+        - checkout
+        - run: sudo chown -R circleci:circleci /usr/local/bin
+        - run: sudo chown -R circleci:circleci /usr/local/lib/python3.5/site-packages
+        - run:
+            name: Install and Upgrade Pipenv
+            command: sudo pip install --upgrade pip pipenv
+        - run:
+            name: Install the required dependencies using Pipenv
+            command: |
+              echo "Installing the Pipenv dependencies\n"
+              sudo apt-get update
+              sudo mkdir -p /usr/share/man/man1 /usr/share/man/man7
+              sudo pipenv install --system --deploy
+              sudo apt-get autoremove -y
+              sudo rm -rf /var/lib/apt/lists/*
+              echo "Completed installing the Pipenv dependencies\n"
+              pwd
+
+        - run:
+            name: run pytest
+            command: |
+              env >> .env
+              mkdir test-reports
+              sudo python -m pytest --junitxml=test-reports/junit.xml
+        - store_test_results:
+            path: test-reports
+
+        - store_artifacts:
+            path: test-reports
+
+
+  workflows:
+    version: 2
+    build_and_test:
+      jobs:
+        - checkout
+        - build_and_test:
+            requires:
+              - checkout
+
+
+
