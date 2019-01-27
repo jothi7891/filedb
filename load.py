@@ -11,10 +11,12 @@ def parse_arguments():
     :return: args
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--init', required=False, help="start the database from scratch",
-                        type=bool, default=False)
+    parser.add_argument('-i', '--input', required=False, help="start the database from scratch",
+                        type=str,default="data/input.txt")
     parser.add_argument('-f', '--db_file', required=False, type=str,
-                        help="Location of the database file")
+                        help="Location of the database file", default="filedb/db.json")
+    parser.add_argument('-r', '--remove', required=False, type=bool,
+                        help="Location of the database file", default=False)
     return parser.parse_args()
 
 
@@ -27,7 +29,7 @@ if __name__ == '__main__':
         print(repr(e))
     args = parse_arguments()
 
-    loader = Loader(db_file=args.db_file, init=args.init, input_file='data/input1.txt')
+    loader = Loader(db_file=args.db_file, init=args.remove, input_file=args.input)
     loader.load()
 
 
