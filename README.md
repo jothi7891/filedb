@@ -32,7 +32,6 @@ without the tables or collection layer , just was not able to get time to put it
 
 * The only external library used is `pytest` for conducting tests.
 
-
 ### Command Usages and Examples
 There is an -i, -r and - f option to provide the input file, remove database and start from scratch and also provide the 
 location of the db file..
