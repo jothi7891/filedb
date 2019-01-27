@@ -22,8 +22,10 @@ class FileDB:
 
     def query(self, filter_args=None):
         records = self._read()
+        filtered_records = {}
         if filter_args:
-            filtered_records = {rid: record for rid, record in records.items() if result.items() <= record.items()}
+            for each_filter in filter_args:
+                filtered_records.update({rid: record for rid, record in records.items() if each_filter.items() <= record.items()})
         else:
             filtered_records = records
         return list(filtered_records.values())

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class Loader:
     def __init__(self, db_file="filedb/db.json", input_file="data/input.txt",
-                                        unprocessed_file= "data/unprocessed.txt"):
+                 unprocessed_file= "data/unprocessed.txt", init=False):
 
         self._init_field_properties()
         # could be easily made as a class on its own - but just keeping it as a config dict for now
