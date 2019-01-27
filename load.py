@@ -6,6 +6,10 @@ logger = logging.getLogger(__name__)
 
 
 def parse_arguments():
+    """
+
+    :return: args
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--init', required=False, help="start the database from scratch",
                         type=bool, default=False)
@@ -15,6 +19,7 @@ def parse_arguments():
 
 
 if __name__ == '__main__':
+
     logger.info(" Inside the load ")
     try:
         parse_arguments()

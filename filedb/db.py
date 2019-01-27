@@ -6,6 +6,9 @@ logging.basicConfig(level=logging.INFO)
 
 
 class FileDB:
+    """
+    class for handling all the DB operations
+    """
     def __init__(self, db_file, init=False):
         self._data_store = JsonStore(file_name=db_file, indent=4, init=init)
 
